@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      # serviceAccountName: default
+      # securityContext:
+      #  fsGroup: 1000
+      #  runAsGroup: 1000
+      #  runAsNonRoot: true
+      #  runAsUser: 1000
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 10	
+      containers:
+      - name: nginx
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            drop:
+              - ALL
+          privileged: true
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+        image: nginx:latest
+        ports:
+        - containerPort: 80        
+        volumeMounts:
+        - name: nginx-index-config
+          mountPath: /usr/share/nginx/html
+        - name: nginx-cache
+          mountPath: /var/cache/nginx/
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          successThreshold: 1
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      volumes:
+      - name: nginx-index-config
+        configMap:
+          name: nginx-config
+      - name: nginx-cache
+        emptyDir: { }
+
+      # regcred contains Dockerhub credentials, remove if not necessary
+      imagePullSecrets:
+      - name: regcred

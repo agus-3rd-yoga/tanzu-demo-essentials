@@ -1,0 +1,19 @@
+resources:
+- ../../../base/nginx
+
+namespace: development
+
+namePrefix:
+  dev-
+
+nameSuffix:
+  -v2
+
+patches:
+- path: patch-development.yaml
+- path: namespace.yaml
+
+configMapGenerator:
+- name: nginx-config
+  behavior: replace
+  env: config.properties

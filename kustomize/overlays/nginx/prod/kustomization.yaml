@@ -1,0 +1,20 @@
+resources:
+- ../../../base/nginx
+
+namespace: production
+
+namePrefix:
+  prod-
+
+nameSuffix:
+  -v1
+
+patches:
+- path: patch-deployment.yaml
+- path: patch-service.yaml
+- path: namespace.yaml
+
+configMapGenerator:
+- name: nginx-config
+  behavior: replace
+  env: config.properties

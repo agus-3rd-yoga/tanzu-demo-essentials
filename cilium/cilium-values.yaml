@@ -1,0 +1,34 @@
+# -- This feature set enables virtual BGP routers to be created via
+# CiliumBGPPeeringPolicy CRDs.
+
+# Enables the BGP control plane.
+bgpControlPlane:
+  enabled: true
+
+# Enables Ingress - needs nodePort.enable=true or kubeProxyReplacement=true
+ingressController:
+  enabled: "true"
+  loadbalancerMode: "shared"
+  service:
+    name: cilium-ingress
+    type: LoadBalancer
+    loadBalancerIP : 172.16.101.100
+
+# Enables Gateway API
+gatewayAPI:
+  enabled: "true"
+
+# Enables Hubble
+hubble:  
+  relay:
+    enabled: "true"
+  ui:
+    enabled: "true"
+
+
+# -- Configure the kube-proxy replacement in Cilium BPF datapath
+# Valid options are "true", "false", "disabled" (deprecated), "partial" (deprecated), "strict" (deprecated).
+# ref: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/
+kubeProxyReplacement: "true"
+k8sServiceHost: "192.168.101.201"
+k8sServicePort: "6443"
